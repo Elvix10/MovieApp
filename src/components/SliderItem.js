@@ -2,9 +2,9 @@ import React from 'react'
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native'
 import {Ionicons} from '@expo/vector-icons'
 
-const SliderItem = ({data}) => {
+const SliderItem = ({data, navigateMovie}) => {
     return (
-        <TouchableOpacity style={styles.container}>
+        <TouchableOpacity style={styles.container} onPress={()=>navigateMovie(data)}>
             <Image style={styles.sliderImage} resizeMethod="resize" source={{uri:`https://image.tmdb.org/t/p/w500/${data.poster_path}`}}/>
             <Text style={styles.title} numberOfLines={1}>{data.title}</Text>
             <View style={styles.rateContainer}>

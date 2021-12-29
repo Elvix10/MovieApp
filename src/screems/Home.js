@@ -9,18 +9,21 @@ import {
   FlatList,
   ActivityIndicator
 } from "react-native";
-
+import { useNavigation } from "@react-navigation/native";
 import Hedear from "../components/Hedear";
 import Search from "../components/Search";
 import SliderItem from "../components/SliderItem";
 import api, { key } from "../utils/Axios";
-import { getListMovies } from "../utils/movies";
+import { getListMovies, randomBanner } from "../utils/movies";
 
 const Home = () => {
   const [nowMovies, setNowMovies] = useState([]);
   const [popularMovies, setPopularMovies] = useState([]);
   const [topMovies, setTopMovies] = useState([]);
-  const [loading, setLoadind]=useState(true)
+  const [bannerMovie, setBannerMovie]= useState({});
+  const [loading, setLoading]=useState(true)
+
+  const navigation=useNavigation();
 
   useEffect(() => {
     let isActive = true;
@@ -54,21 +57,21 @@ const Home = () => {
      setNowMovies(nowData.data.results)
      setPopularMovies(popularData.data.results)
      setTopMovies(TopData.data.results)
-     setLoadind(false)
+
+     setBannerMovie(nowData.data.results[Math.floor(Math.random()*5)])
+     setLoading(false)
     }
    
-    console.log('test')
-    console.log(nowMovies.poster_path)
-    console.log('test')
-
-   
-
     getMovies();
-  }, []);
+  }, []); 
+
+  function navigateMovieDetails(movie){
+    navigation.navigate('movieDetail',{id:movie.id})
+  }
 
   if(loading){
     return(
-      <View style={{alignItems:'center', justifyContent='center'}}>
+      <View style={{flex:1, alignItems:'center', justifyContent:'center', backgroundColor:'#141a29'}}>
         <ActivityIndicator size='large' color="#fff"/>
       </View>
     )
@@ -81,12 +84,12 @@ const Home = () => {
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <Text style={styles.titleDestaque}>Em destaque</Text>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={()=>navigateMovieDetails(bannerMovie)}>
           <Image
             resizeMethod="resize"
             style={styles.image}
             source={{
-              uri: "https://media.istockphoto.com/photos/shocked-young-couple-watching-a-movie-at-home-picture-id1284279640?s=612x612",
+              uri: `https://image.tmdb.org/t/p/w500/${bannerMovie.poster_path}`,
             }}
           />
         </TouchableOpacity>
@@ -96,7 +99,7 @@ const Home = () => {
           horizontal={true}
           showsHorizontalScrollIndicator={false}
           data={nowMovies}
-          renderItem={({ item }) => <SliderItem data={item} />}
+          renderItem={({ item }) => <SliderItem data={item} navigateMovie={()=>navigateMovieDetails(item)}/>}
           keyExtractor={(item) => String(item.id)}
         />
 
@@ -106,7 +109,7 @@ const Home = () => {
           horizontal={true}
           showsHorizontalScrollIndicator={false}
           data={popularMovies}
-          renderItem={({ item }) => <SliderItem data={item} />}
+          renderItem={({ item }) => <SliderItem data={item} navigateMovie={()=>navigateMovieDetails(item)} />}
           keyExtractor={(item) => String(item.id)}
         />
         <Text style={styles.titleDestaque}>Mais Votados</Text>
@@ -115,7 +118,7 @@ const Home = () => {
           horizontal={true}
           showsHorizontalScrollIndicator={false}
           data={topMovies}
-          renderItem={({ item }) => <SliderItem data={item} />}
+          renderItem={({ item }) => <SliderItem data={item} navigateMovie={()=>navigateMovieDetails(item)}/>}
           keyExtractor={(item) => String(item.id)}
         />
       </ScrollView>
