@@ -1,11 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  FlatList,
+} from "react-native";
 
 import { Feather, Ionicons } from "@expo/vector-icons";
 
 import { useNavigation, useRoute } from "@react-navigation/native";
 import Stars from "react-native-stars";
 import api, { key } from "../utils/Axios";
+import Genres from "../components/Genres";
 
 const MovieDetails = () => {
   const navigation = useNavigation();
@@ -49,25 +57,38 @@ const MovieDetails = () => {
       <Text style={styles.title} numberOfLines={1}>
         {movie.title}
       </Text>
-      <View style={styles.info}>
-        <Text style={styles.infoStyle}>2016</Text>
-        <Text style={styles.infoStyle}>actions</Text>
-        <Text style={styles.infoStyle}>1h e 20m</Text>
-      </View>
-      <View style={{marginTop:15}}>
+
+      <FlatList
+        data={movie?.genres}
+        style={styles.categories}
+        horizontal={true}
+        showsHorizontalScrollIndicator={true}
+        keyExtractor={(item)=>String(item.id)}
+        renderItem={({item})=><Genres data={item}/>}
+      />
+
+      <View style={{ marginTop: 15 }}>
         <Stars
           default={movie.vote_average}
           count={10}
           half={true}
           starSize={20}
-          fullStar={<Ionicons name="md-star" size={24} color="#e7a74e"/>}
-          emptyStar={<Ionicons name="md-star-outline" size={24} color="#e7a74e"/>}
-          halfStar={<Ionicons name="md-star-half" size={24} color="#e7a74e"/>}
+          fullStar={<Ionicons name="md-star" size={24} color="#e7a74e" />}
+          emptyStar={
+            <Ionicons name="md-star-outline" size={24} color="#e7a74e" />
+          }
+          halfStar={<Ionicons name="md-star-half" size={24} color="#e7a74e" />}
           disable={true}
         />
       </View>
-      <Text style={{color:'#fff', fontSize: 20,marginTop:14, marginLeft:14 }}>Overview</Text>
-      <Text style={{color:'#DDDDDD', fontSize: 14,margin:14}}>{movie.overview}</Text>
+      <Text
+        style={{ color: "#fff", fontSize: 20, marginTop: 14, marginLeft: 14 }}
+      >
+        Overview
+      </Text>
+      <Text style={{ color: "#DDDDDD", fontSize: 14, margin: 14 }}>
+        {movie.overview}
+      </Text>
     </View>
   );
 };
@@ -109,11 +130,11 @@ const styles = StyleSheet.create({
     marginTop: 8,
     alignSelf: "center",
   },
-  info: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-evenly",
-    marginTop: 8,
+  categories: {
+    padding: 14,
+    maxHeight:60,
+    minHeight:35,
+    alignSelf:"center"
   },
   infoStyle: {
     color: "#DDDDDD",

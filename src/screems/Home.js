@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Image,
   FlatList,
-  ActivityIndicator
+  ActivityIndicator,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Hedear from "../components/Hedear";
@@ -20,61 +20,74 @@ const Home = () => {
   const [nowMovies, setNowMovies] = useState([]);
   const [popularMovies, setPopularMovies] = useState([]);
   const [topMovies, setTopMovies] = useState([]);
-  const [bannerMovie, setBannerMovie]= useState({});
-  const [loading, setLoading]=useState(true)
+  const [upcomingMovies, setUpcomingMovies] = useState([]);
+  const [bannerMovie, setBannerMovie] = useState({});
+  const [loading, setLoading] = useState(true);
 
-  const navigation=useNavigation();
+  const navigation = useNavigation();
 
   useEffect(() => {
     let isActive = true;
 
     async function getMovies() {
-    
-      const [nowData, popularData, TopData]= await Promise.all([
+      const [nowData, popularData, TopData, UpcomingData] = await Promise.all([
         api.get("/movie/now_playing", {
           params: {
             api_key: key,
             language: "pt-BR",
             page: 1,
-          }
+          },
         }),
         api.get("/movie/popular", {
           params: {
             api_key: key,
             language: "pt-BR",
             page: 1,
-          }
+          },
         }),
         api.get("/movie/top_rated", {
           params: {
             api_key: key,
             language: "pt-BR",
             page: 1,
-          }
-        })
-      ])
+          },
+        }),
+        api.get("/movie/upcoming", {
+          params: {
+            api_key: key,
+            page: 1,
+          },
+        }),
+      ]);
 
-     setNowMovies(nowData.data.results)
-     setPopularMovies(popularData.data.results)
-     setTopMovies(TopData.data.results)
-
-     setBannerMovie(nowData.data.results[Math.floor(Math.random()*5)])
-     setLoading(false)
+      setNowMovies(nowData.data.results);
+      setPopularMovies(popularData.data.results);
+      setTopMovies(TopData.data.results);
+      setUpcomingMovies(UpcomingData.data.results);
+      setBannerMovie(nowData.data.results[Math.floor(Math.random() * 5)]);
+      setLoading(false);
     }
-   
-    getMovies();
-  }, []); 
 
-  function navigateMovieDetails(movie){
-    navigation.navigate('movieDetail',{id:movie.id})
+    getMovies();
+  }, []);
+
+  function navigateMovieDetails(movie) {
+    navigation.navigate("movieDetail", { id: movie.id });
   }
 
-  if(loading){
-    return(
-      <View style={{flex:1, alignItems:'center', justifyContent:'center', backgroundColor:'#141a29'}}>
-        <ActivityIndicator size='large' color="#fff"/>
+  if (loading) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "#141a29",
+        }}
+      >
+        <ActivityIndicator size="large" color="#fff" />
       </View>
-    )
+    );
   }
 
   return (
@@ -84,7 +97,7 @@ const Home = () => {
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <Text style={styles.titleDestaque}>Em destaque</Text>
-        <TouchableOpacity onPress={()=>navigateMovieDetails(bannerMovie)}>
+        <TouchableOpacity onPress={() => navigateMovieDetails(bannerMovie)}>
           <Image
             resizeMethod="resize"
             style={styles.image}
@@ -99,7 +112,12 @@ const Home = () => {
           horizontal={true}
           showsHorizontalScrollIndicator={false}
           data={nowMovies}
-          renderItem={({ item }) => <SliderItem data={item} navigateMovie={()=>navigateMovieDetails(item)}/>}
+          renderItem={({ item }) => (
+            <SliderItem
+              data={item}
+              navigateMovie={() => navigateMovieDetails(item)}
+            />
+          )}
           keyExtractor={(item) => String(item.id)}
         />
 
@@ -109,7 +127,27 @@ const Home = () => {
           horizontal={true}
           showsHorizontalScrollIndicator={false}
           data={popularMovies}
-          renderItem={({ item }) => <SliderItem data={item} navigateMovie={()=>navigateMovieDetails(item)} />}
+          renderItem={({ item }) => (
+            <SliderItem
+              data={item}
+              navigateMovie={() => navigateMovieDetails(item)}
+            />
+          )}
+          keyExtractor={(item) => String(item.id)}
+        />
+
+        <Text style={styles.titleDestaque}>Em Breve</Text>
+        <FlatList
+          style={styles.flatlist}
+          horizontal={true}
+          showsHorizontalScrollIndicator={false}
+          data={upcomingMovies}
+          renderItem={({ item }) => (
+            <SliderItem
+              data={item}
+              navigateMovie={() => navigateMovieDetails(item)}
+            />
+          )}
           keyExtractor={(item) => String(item.id)}
         />
         <Text style={styles.titleDestaque}>Mais Votados</Text>
@@ -118,7 +156,12 @@ const Home = () => {
           horizontal={true}
           showsHorizontalScrollIndicator={false}
           data={topMovies}
-          renderItem={({ item }) => <SliderItem data={item} navigateMovie={()=>navigateMovieDetails(item)}/>}
+          renderItem={({ item }) => (
+            <SliderItem
+              data={item}
+              navigateMovie={() => navigateMovieDetails(item)}
+            />
+          )}
           keyExtractor={(item) => String(item.id)}
         />
       </ScrollView>
